@@ -10,12 +10,12 @@ require( cartography )
 memory.limit( size = 1e9 )
 
 # set working drive
-setwd( 'P:/is-wel/indus/message_indus' )
+setwd( 'C:/Users/bararzadeh/Documents/Github/Sufichay_ix' )
 
 # Grab the basin boundaries
-basin = 'Indus'
-basin.spdf = readOGR( paste( getwd(), 'input', sep = '/' ), 'Indus_bcu', verbose = FALSE )
-basin.spdf = spTransform( basin.spdf, CRS("+proj=longlat") ) # temp[which(as.character(temp$BASIN) == basin | as.character(temp$PID) == '2256'),] for Karachi basin
+basin = 'Sufichay'
+basin.spdf = readOGR( paste( getwd(), 'input', sep = '/' ), 'Sufichay_Subbasin_bcu', verbose = FALSE )
+basin.spdf = spTransform( basin.spdf, CRS("+proj=longlat") ) # temp[which(as.character(temp$BASIN) == basin | as.character(temp$PID) == '2256'),] for urumia basin
 basin.sp = gUnaryUnion( basin.spdf )
 basin.sp = SpatialPolygons(list(Polygons(Filter(function(f){f@ringDir==1},basin.sp@polygons[[1]]@Polygons),ID=1)))
 proj4string(basin.sp) = proj4string(basin.spdf)

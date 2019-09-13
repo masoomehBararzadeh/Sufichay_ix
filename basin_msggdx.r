@@ -24,7 +24,7 @@ require( rgeos )
 tic()
 
 # Location of input data
-setwd( 'C:/Users/bararzadeh/Documents/Sufichay_ix-master' )
+setwd( 'C:/Users/bararzadeh/Documents/Github/Sufichay_ix' )
 
 # Use ixmp? Takes time to upload - can choose option to debug w/o ixmp
 use_ixmp = FALSE
@@ -36,7 +36,7 @@ Sufichay_ix_path = 'C:/Users/bararzadeh/Documents'
 gams_path = 'C:/GAMS/win64/24.9'
 
 # Basin analyzed
-basin = 'sufi_chay'
+basin = 'Sufichay'
 # 
 # # SSP being analyzed
 # SSP = 'SSP2'
@@ -134,22 +134,6 @@ toc() # finished loading data
 #scname = 'test'
 
 # if using ixmp, upload data and solve
-if( use_ixmp )
-	{
-	
-	print( 'Uploading to DB using ixmp' )
-	
-	tic()
-	source( paste( Sufichay_ix_path, 'basin_msggdx_ixmp.r', sep = '/' ) )
-	toc()
-	
-	tic()
-	source( paste( Sufichay_ix_path, 'basin_msggdx_solve.r', sep = '/' ) )
-	toc()
-	
-	}
-	
-	# Solve locally
 
 	print( 'Output to GDX with gdxrrw' )
 

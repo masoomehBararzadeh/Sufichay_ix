@@ -1,4 +1,4 @@
-# source( paste( Sys.getenv("INDUS_IX_PATH"), 'basin_msggdx.r', sep = '/' ) )
+# source( paste( Sys.getenv("Sufichay_ix_PATH"), 'basin_msggdx.r', sep = '/' ) )
  
 
  
@@ -32,19 +32,19 @@ require( rgeos )
  
 # Location of input data
  
-setwd( 'P:/is-wel/indus/message_indus' )
+setwd( 'C:\Users\bararzadeh\Documents\Sufichay_ix-master/message_indus' )
  
 
  
 # Local location of indus ix model - MAKE SURE TO ADD TO SYSTEM ENVIRONMENT VARIABLES
  
-indus_ix_path = Sys.getenv("INDUS_IX_PATH")
+Sufichay_ix_path = Sys.getenv("Sufichay_ix_PATH")
  
 
  
 # Basin analyzed
  
-basin = 'Indus'
+basin = 'Sufichay'
  
 
  
@@ -56,13 +56,13 @@ SSP = 'SSP2'
  
 # Time
  
-year = c( seq( 1990, 2010, by = 10  ), 2015, seq( 2020, 2060, by = 10 ) ) 
+year = c( seq( 1990, 2010, by = 10  ), 2016, seq( 2020, 2060, by = 10 ) ) 
  
 time =  c( seq(1, 12, by = 1 ) ) # monthly time steps
  
 year_all = year
  
-baseyear = 2015 # last historical year
+baseyear = 2016 # last historical year
  
 #duration_time = round( c( 31,28,31,30,31,30,31,31,30,31,30,31 )/365, digits =3 )
  
@@ -96,7 +96,7 @@ basin_red.sp = spTransform( basin_red.sp, crs( basin.spdf ) )
  
 
  
-as_riv_15s.spdf = spTransform( crop( readOGR( 'input/hydrosheds/river_network/as_riv_15s', 'as_riv_15s', verbose = FALSE ), extent( basin_red.sp ) ), crs(basin_red.sp) )    
+as_riv_15s.spdf = spTransform( crop( readOGR( 'C:/Users/bararzadeh/Documents/Sufichay_ix-master/input/basin_transmission/Sarab_Suficay', 'Sarab_Suficay', verbose = FALSE ), extent( basin_red.sp ) ), crs(basin_red.sp) )    
  
 as_riv_15s.spdf = raster::intersect( as_riv_15s.spdf[ which( !is.na( over( as_riv_15s.spdf, basin_red.sp ) ) ), ]  , basin_red.sp )
  

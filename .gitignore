@@ -26,3 +26,5 @@ indus_ix.Rproj
 *.~gm
 
 plots_*/
+
+input/

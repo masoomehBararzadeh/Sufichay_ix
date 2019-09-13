@@ -8,7 +8,7 @@ require(dplyr)
 require(tidyr)
 
 # Location of input data
-setwd( 'C:/Users/bararzadeh/Documents' )
+setwd( 'C:/Users/bararzadeh/Documents/Github/Sufichay_ix' )
 
 # Local location of indus ix model - MAKE SURE TO ADD TO SYSTEM ENVIRONMENT VARIABLES
 indus_ix_path = Sys.getenv("Sufichay_IX_PATH")
@@ -58,8 +58,8 @@ basinr.spdf = basin.spdf[ c( 9, 13, 19, 20 ), ] # Only including basins along bo
 IRR_cw1.pts$PID = sapply( 1:nrow(IRR_cw1.pts), function( iii ){ basinr.spdf@data$PID[ which.min( gDistance( IRR_cw1.pts[iii,], basinr.spdf, byid=TRUE ) ) ] } )
 
 # Ensure all grid cells in India allocated to indian sub-basin
-ind = getData( 'GADM', country = 'IND', level = 0 )[,'ID_0']
-IRR_cw1.pts$PID[ which( over( IRR_cw1.pts, ind )[,'ID_0'] == 'IND' ) ] =  'IND_4'
+#ind = getData( 'GADM', country = 'IND', level = 0 )[,'ID_0']
+#IRR_cw1.pts$PID[ which( over( IRR_cw1.pts, ind )[,'ID_0'] == 'IND' ) ] =  'IND_4'
 
 # Convert to polygons
 IRR_cw1.pts = merge( IRR_cw1.pts, data.frame( PID = unique( IRR_cw1.pts$PID ), ID = 1:length( unique( IRR_cw1.pts$PID ) ) ) )
@@ -81,84 +81,85 @@ basin.spdf = basin_irr.spdf
 
 # Get data from GAEZ
 # path with yield data, from GAEZ
-yeld_path = paste0(getwd(),'/input/land_maps_crop_yields/YIELD')
+#yeld_path = paste0(getwd(),'/input/land_maps_crop_yields/YIELD')
+#yeld_path = paste0(getwd(),'/input/land_maps_crop_yields/YIELD')
 
 # Crops to inlcude - must match the technology file
-crop_names = c('wheat','fodder','pulses','fruit')
+crop_names = c('wheat','fodder','wulnut','pulses','fruit')
 
 # Get data for each crop - these are potential yields with irrigation
-irr.df = bind_rows( lapply( seq_along(crop_names), function( ii ){
+#irr.df = bind_rows( lapply( seq_along(crop_names), function( ii ){
 	
-	crop_folder = list.dirs(path = yeld_path)
-	crop_folder = crop_folder[ grep( paste0('irr_', crop_names[ii]), crop_folder)]
-	crop_file = list.files(path = crop_folder,pattern = '.tif')
+  #crop_folder = list.dirs(path = yeld_path)
+	#	crop_folder = crop_folder[ grep( paste0('irr_', crop_names[ii]), crop_folder)]
+#	crop_file = list.files(path = crop_folder,pattern = '.tif')
 
-	irr_crop.rs = raster(paste0(crop_folder,'/',crop_file) )
-	irr_crop.df = read.csv('input/Irr')  
+#	irr_crop.rs = raster(paste0(crop_folder,'/',crop_file) )
+#	irr_crop.df = read.csv('input/Irr')  
 	# crop with basin extent
-	irr_crop_basin.rs = crop( irr_crop.rs, extent(basin.spdf) )
+#	irr_crop_basin.rs = crop( irr_crop.rs, extent(basin.spdf) )
 
-	irr_crop_basin.sp = rasterToPoints(irr_crop_basin.rs, spatial = T)
+#	irr_crop_basin.sp = rasterToPoints(irr_crop_basin.rs, spatial = T)
 
-	irr_crop_basin.sp = spTransform(irr_crop_basin.sp, crs(  basin.spdf ) )
-	names(irr_crop_basin.sp) = 'value'
-	irr_crop_basin.sp$node = as.character(over(irr_crop_basin.sp , basin.spdf)[,'PID'] )
-	irr_crop_basin.sp = irr_crop_basin.sp[!is.na(irr_crop_basin.sp$node),]
+#	irr_crop_basin.sp = spTransform(irr_crop_basin.sp, crs(  basin.spdf ) )
+#	names(irr_crop_basin.sp) = 'value'
+#	irr_crop_basin.sp$node = as.character(over(irr_crop_basin.sp , basin.spdf)[,'PID'] )
+#	irr_crop_basin.sp = irr_crop_basin.sp[!is.na(irr_crop_basin.sp$node),]
 
-	df_i =irr_crop_basin.sp@data %>% 
-	  mutate(crop = crop_names[ii])
+#	df_i =irr_crop_basin.sp@data %>% 
+#	  mutate(crop = crop_names[ii])
 
-	return( df_i ) 
+#	return( df_i ) 
 
-	} ) )
+#	} ) )
 
 # exclude point in which yield is 0 because of no crop availability
-irr_yield_out = irr.df %>% 
-  filter(value != 0 ) %>% 
-  group_by(node,crop) %>% 
-  summarise(value = mean(value)) %>%  #convert from kg DW/ ha = ton/Mha
-  mutate(value = round(value, 4)) %>% 
-  mutate(unit = 'kton DW/ Mha') %>% 
-  mutate(par = 'irrigation_yield') %>% 
-  mutate(time = 'year') %>% 
-  select(crop,par,node,time,unit,value)
+#irr_yield_out = irr.df %>% 
+  #filter(value != 0 ) %>% 
+  #group_by(node,crop) %>% 
+  #summarise(value = mean(value)) %>%  #convert from kg DW/ ha = ton/Mha
+  #mutate(value = round(value, 4)) %>% 
+  #mutate(unit = 'kton DW/ Mha') %>% 
+  #mutate(par = 'irrigation_yield') %>% 
+  #mutate(time = 'year') %>% 
+ # select(crop,par,node,time,unit,value)
 
 # same thing for rain-fed crops - this is the yield potential
-rain.df = bind_rows( lapply( seq_along(crop_names), function( ii ){
+#rain.df = bind_rows( lapply( seq_along(crop_names), function( ii ){
 	
-	crop_folder = list.dirs(path = yeld_path)
-	crop_folder = crop_folder[ grep( paste0('rain_', crop_names[ii]), crop_folder)]
-	crop_file = list.files(path = crop_folder,pattern = '.tif')
+#	crop_folder = list.dirs(path = yeld_path)
+#	crop_folder = crop_folder[ grep( paste0('rain_', crop_names[ii]), crop_folder)]
+#	crop_file = list.files(path = crop_folder,pattern = '.tif')
 
-	rain_crop.rs = raster(paste0(crop_folder,'/',crop_file) )
+#	rain_crop.rs = raster(paste0(crop_folder,'/',crop_file) )
 
 	# crop with basin extent
-	rain_crop_basin.rs = crop( rain_crop.rs, extent(basin.spdf) )
+#	rain_crop_basin.rs = crop( rain_crop.rs, extent(basin.spdf) )
 
-	rain_crop_basin.sp = rasterToPoints(rain_crop_basin.rs, spatial = T)
+#	rain_crop_basin.sp = rasterToPoints(rain_crop_basin.rs, spatial = T)
 
-	rain_crop_basin.sp = spTransform(rain_crop_basin.sp, crs(  basin.spdf ) )
-	names(rain_crop_basin.sp) = 'value'
-	rain_crop_basin.sp$node = as.character(over(rain_crop_basin.sp , basin.spdf)[,'PID'] )
-	rain_crop_basin.sp = rain_crop_basin.sp[!is.na(rain_crop_basin.sp$node),]
+#	rain_crop_basin.sp = spTransform(rain_crop_basin.sp, crs(  basin.spdf ) )
+#	names(rain_crop_basin.sp) = 'value'
+#	rain_crop_basin.sp$node = as.character(over(rain_crop_basin.sp , basin.spdf)[,'PID'] )
+#	rain_crop_basin.sp = rain_crop_basin.sp[!is.na(rain_crop_basin.sp$node),]
 
-	df_i =rain_crop_basin.sp@data %>% 
-	mutate(crop = crop_names[ii])
+#	df_i =rain_crop_basin.sp@data %>% 
+#	mutate(crop = crop_names[ii])
 
-	return( df_i )
+#	return( df_i )
   
-	} ) )
+#	} ) )
 
 # exclude point in which yield is 0 because of no crop availability
-rain_yield_out = rain.df %>% 
-  filter(value != 0 ) %>% 
-  group_by(node,crop) %>% 
-  summarise(value = round( mean(value)) , digits = 4) %>% # convert from kg DW/ ha = kton/Mha
-  mutate(value = round(value, 4)) %>% 
-  mutate(unit = 'kton DW/ Mha') %>% 
-  mutate(par = 'rain-fed_yield') %>% 
-  mutate(time = 'year') %>% 
-  select(crop,par,node,time,unit,value)
+#rain_yield_out = rain.df %>% 
+  #filter(value != 0 ) %>% 
+  #group_by(node,crop) %>% 
+  #summarise(value = round( mean(value)) , digits = 4) %>% # convert from kg DW/ ha = kton/Mha
+  #mutate(value = round(value, 4)) %>% 
+  #mutate(unit = 'kton DW/ Mha') %>% 
+  #mutate(par = 'rain-fed_yield') %>% 
+  #mutate(time = 'year') %>% 
+  #select(crop,par,node,time,unit,value)
 
 existing_csv = read.csv(paste0(getwd(), '/input/crop_input_data.csv')) %>% 
   filter(unit != 'kton DW/ Mha')
@@ -167,50 +168,50 @@ write.csv(to_csv, paste0(getwd(), '/input/crop_input_data.csv'), row.names = F)
 
 # Crop production data in 2000, summing irrigated and rainfed crops 
 # data from GAEZ, original unit: 1000t -  this is the historical production capacity
-prod_path = paste0(getwd(),'/input/land_maps_crop_yields/PROD')
+#prod_path = paste0(getwd(),'/input/land_maps_crop_yields/PROD')
 
-prod.df = bind_rows( lapply( seq_along(crop_names), function( ii ){
+#prod.df = bind_rows( lapply( seq_along(crop_names), function( ii ){
 	
-	crop_folder = list.dirs(path = prod_path)
-	crop_folder = crop_folder[ grep( paste0( crop_names[ii]), crop_folder)]
-	crop_file = list.files(path = crop_folder,pattern = '.tif')
+#	crop_folder = list.dirs(path = prod_path)
+	#crop_folder = crop_folder[ grep( paste0( crop_names[ii]), crop_folder)]
+	#crop_file = list.files(path = crop_folder,pattern = '.tif')
 
-	prod_crop.rs = raster(paste0(crop_folder,'/',crop_file) )
+#	prod_crop.rs = raster(paste0(crop_folder,'/',crop_file) )
 	
 	# crop with basin extent
-	prod_crop_basin.rs = crop( prod_crop.rs, extent(basin.spdf) )
+#	prod_crop_basin.rs = crop( prod_crop.rs, extent(basin.spdf) )
 	
-	prod_crop_basin.sp = rasterToPoints(prod_crop_basin.rs, spatial = T)
+#	prod_crop_basin.sp = rasterToPoints(prod_crop_basin.rs, spatial = T)
 
-	prod_crop_basin.sp = spTransform(prod_crop_basin.sp, crs(  basin.spdf ) )
-	names(prod_crop_basin.sp) = 'value'
-	prod_crop_basin.sp$node = as.character(over(prod_crop_basin.sp , basin.spdf)[,'PID'] )
-	prod_crop_basin.sp = prod_crop_basin.sp[!is.na(prod_crop_basin.sp$node),]
+#	prod_crop_basin.sp = spTransform(prod_crop_basin.sp, crs(  basin.spdf ) )
+#	names(prod_crop_basin.sp) = 'value'
+#	prod_crop_basin.sp$node = as.character(over(prod_crop_basin.sp , basin.spdf)[,'PID'] )
+#	prod_crop_basin.sp = prod_crop_basin.sp[!is.na(prod_crop_basin.sp$node),]
 
-	df_i =prod_crop_basin.sp@data %>% 
-	mutate(crop = crop_names[ii])
+#	df_i =prod_crop_basin.sp@data %>% 
+#	mutate(crop = crop_names[ii])
 
-	return( df_i )
+#	return( df_i )
   
-	} ) )
+#	} ) )
 
 # exclude point in which production is 0 because of no crop availability
-prod_out = prod.df %>% 
-  filter(value != 0 ) %>% 
-  group_by(node,crop) %>% 
-  summarise(value = sum(value)) %>%  # sum of production in the area
-  mutate(value = round(value, 4)) %>% 
-  mutate(unit = 'kton') %>% 
-  mutate(par = 'production_2000') %>% 
-  mutate(time = 'year') %>% 
-  select(crop,par,node,time,unit,value)
+#prod_out = prod.df %>% 
+# filter(value != 0 ) %>% 
+# group_by(node,crop) %>% 
+# summarise(value = sum(value)) %>%  # sum of production in the area
+# mutate(value = round(value, 4)) %>% 
+# mutate(unit = 'kton') %>% 
+# mutate(par = 'production_2000') %>% 
+# mutate(time = 'year') %>% 
+# select(crop,par,node,time,unit,value)
 
 #calculate the multiplication factor for years after 2000, China data just remain unchanged as in 2000
 # from FAO national harvested area 1990-2015 trends, used as multiplication factors for the spatial harvested area in 2000
 # this gives the historical capacity of crop technologies in 2015
 
-maps_path = paste0(getwd(),'/input/land_maps_crop_yields')
-national_trend.path = path.expand(paste0(maps_path,'/FAO_hist_national_prod'))
+#maps_path = paste0(getwd(),'/input/land_maps_crop_yields')
+#national_trend.path = path.expand(paste0(maps_path,'/FAO_hist_national_prod'))
 nat_trend.files = list.files(path = national_trend.path,pattern = '.csv')
 
 inc_rate2000 = NULL
@@ -783,7 +784,7 @@ legend( 'left', legend = unlist( strsplit( colnames(df), '[.]' ) )[ seq(2,2*ncol
 dev.off()		
 
 # create historical activity from irrigation withdrawals, and sw/gw shares from cheema
-sw_gw_ratio = irr_cheema.df %>% mutate(cw = cw *water_course_efficiency * irrigation_canal_efficiency ,
+sw_gw_ratio = irr_cheema.df %>% mutate(cw = cw *water_course_efficiency  ,
                                        gw = gw *irrigation_gw_efficiency,
                                        tw = cw + gw,
                                        ratio_sw = cw/tw)

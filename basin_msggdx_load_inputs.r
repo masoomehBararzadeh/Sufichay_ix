@@ -1,8 +1,8 @@
 
 # Import the basin delineation as a spatialpolygonsdataframe (.spdf) 
-# each polygon has a unique ID (PID) and represents the intersection between countries and catchments (i.e., basin country units - bcus)
-basin.spdf = readOGR( paste( getwd(), 'input', sep = '/' ), paste( basin, 'bcu', sep = '_' ), verbose = FALSE )
-setbasin.spdf$BASIN = basin
+# each polygon has a unique ID (PID) and represents the intersection between rural regions and catchments (i.e., basin rural regions units - bcus)
+basin.spdf = readOGR( paste( getwd(), 'input', sep = '/' ), paste( basin, 'Subbasin_bcu', sep = '_' ), verbose = FALSE )
+basin.spdf$BASIN = basin
 bcus = as.character( basin.spdf@data$PID )
 node = c( 	bcus, 
 			unique( as.character( basin.spdf@data$BASIN ) ) ) 
@@ -26,12 +26,12 @@ fossil_fuel_cost_var0 = read.csv("input/fuel_cost/cost_variation_gams.csv", stri
 # Dam storage capacity	
 dam_storage_capacity.df = read.csv("input/storage/dam_storage_capacity_M_m3_PID.csv", stringsAsFactors=FALSE) %>% 
 	rename(value = value, node = node)
-# avg_storage_multiplier for setting avg level of storage at thebeginning and end of timesteps
+# avg_storage_multiplier for setting avg level of storage at the beginning and end of timesteps
 avg_storage_multiplier = read.csv('input/storage/average_storage_multiplier.csv', stringsAsFactors=FALSE)
 
 # storage evaporation losses
 
-evap_losses.df = read.csv('input/storage/evapo_loss_re0', stringsAsFactors = F) %>% 
+evap_losses.df = read.csv('input/storage/evapo_loss_reservoir_per_unit_vloume', stringsAsFactors = F) %>% 
   #filter(scenario == climate_scenario & model == climate_model)
 
 # to sefine rule curves
@@ -75,7 +75,7 @@ environmental_flow.df = read.csv( paste0('input/basin_water_resources/basin_envi
   dplyr::select(node,year_all,time,value,units)
   
 # Water canal linkages 
-canals.df = read.csv( 'input/Sufychay_bcu_canals.csv', stringsAsFactors=FALSE )
+canals.df = read.csv( 'input/Sufichay_bcu_canals.csv', stringsAsFactors=FALSE )
   
 # Groundwater energy intensity
 gw_ei.df = read.csv( 'input/gw_energy_intensity.csv', stringsAsFactors=FALSE )
@@ -151,9 +151,9 @@ for(iii in 1:length(adj2)){ jjj = which( adj1 == adj2[iii] ) ; if( jjj > iii ){ 
 adjacent_routes = adj1[ -1 * inds ]
 
 # Identify basin units along coast - limit to approx. 1.5 degrees from coastline (about 150km near equator)
-coast = crop( spTransform( readShapeLines('input/ne_10m_coastline.shp', proj4string = crs(basin.spdf)), crs(basin.spdf) ), extent( buffer( basin.spdf, 0.1 ) ) ) 
-cdist = gDistance(coast, basin.spdf, byid = TRUE)
-coast_pid = unlist( lapply( 1:nrow(cdist), function(b){ if( length( which( cdist[b,] < 1.5 ) ) > 0 ){ return( as.character( basin.spdf@data$PID[b] ) ) }else{ return( NULL ) } } ) )
+#coast = crop( spTransform( readShapeLines('input/ne_10m_coastline.shp', proj4string = crs(basin.spdf)), crs(basin.spdf) ), extent( buffer( basin.spdf, 0.1 ) ) ) 
+#cdist = gDistance(coast, basin.spdf, byid = TRUE)
+#coast_pid = unlist( lapply( 1:nrow(cdist), function(b){ if( length( which( cdist[b,] < 1.5 ) ) > 0 ){ return( as.character( basin.spdf@data$PID[b] ) ) }else{ return( NULL ) } } ) )
 
 # Electricity trade routes for regions outside the basin were identified from basin map 
 
@@ -184,9 +184,9 @@ type_level = data.frame( 	withdrawal = c( 'irrigation_final', 'urban_final', 'in
                           row.names =  c('irrigation','urban','industry','rural')  )
 # Exogenous demands							
 demand.df = demand_fixed.df %>%
-				filter( scenario == SSP , sector != 'crop') %>%
-				mutate( commodity = unlist( type_commodity[ type ] ) ) %>%
-				mutate( level = unlist( sapply( 1:length(type),function(iii){ type_level[ sector[iii], type[iii] ] } ) ) ) %>%
+				#filter( scenario == SSP , sector != 'crop') %>%
+			#	mutate( commodity = unlist( type_commodity[ type ] ) ) %>%
+			#	mutate( level = unlist( sapply( 1:length(type),function(iii){ type_level[ sector[iii], type[iii] ] } ) ) ) %>%
 				mutate( year_all = as.numeric( year ) ) %>%
 				mutate( time = as.numeric( month ) ) %>%
 				rename( node = pid ) %>%
@@ -299,7 +299,7 @@ demand.df = demand.df %>%
 
 # scale manufacturing sector water demands in India for now
 demand.df = demand.df %>% 
-  mutate(value = if_else(level == 'industry_final' & units == 'mcm_per_day' & grepl( 'IND', node ), 0.1 * value , value) )
+  mutate(value = if_else(level == 'industry_final' & units == 'mcm_per_day' & grepl( 'Yay', node ), 0 * value , value) )
 
 # Land demand
 land_demand.df = land_availability.df %>% 

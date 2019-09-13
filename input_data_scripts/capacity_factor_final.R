@@ -5,14 +5,14 @@ library(rgeos)
 library(tidyverse)
 memory.limit(size=1e9)
 
-exclusion_zones.rs <- raster("P:/is-wel/indus/message_indus/input/percent_grid_cell_available_wind_solar.asc")
+exclusion_zones.rs <- raster("C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/percent_grid_cell_available_wind_solar.asc")
 plot(exclusion_zones.rs)
 #just to have a reference coordinate system, otherwise area function gives wanrning
-indus_basin.spdf = readOGR("P:/is-wel/indus/message_indus/input",'Indus_bcu')
-proj4string(exclusion_zones.rs) <- proj4string(indus_basin.spdf)
+indus_basin.spdf = readOGR("C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input",'Sufichay_Subbasin_bcu')
+proj4string(exclusion_zones.rs) <- proj4string(Sufichay_Subbasin_bcu.spdf)
 area.rs <- area(exclusion_zones.rs)
 
-turbine_density = 5 # max MW installed per sqkm from IRENA; this is consistent with Eurek et al.
+turbine_density = 50 # max MW installed per sqkm from IRENA; this is consistent with Eurek et al.
 panel_density = 30 # Pietzcker et al claims 100 MW/km2 and provides values by country, but this seems very optimistic
 #   Ong et al (2013) claims roughly 30 MW/km2 for large (>20 MW) PV plants; However, to be consistent with Pietzcker,
 #   which was used for the global potentials, the Pietzcker value for a representative country in each basin 
@@ -29,7 +29,7 @@ plot(max_solar_potential)
 bin_exclusion_zones.rs <- exclusion_zones.rs
 bin_exclusion_zones.rs[bin_exclusion_zones.rs > 0 ] = 1
 
-solar.df <- read.csv("P:/is-wel/indus/message_indus/input/LF/solar_monthly_LF.csv")
+solar.df <- read.csv("C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/LF/solar_monthly_LF.csv")
 months = unique(solar.df$month)
 # make spdf
 solar.df <- solar.df %>% select(-id) %>% 
@@ -43,15 +43,15 @@ plot(solar.spdf)
 solar.st = do.call(stack, lapply( months, function(mm){ return( raster( solar.spdf[,mm] ) ) } ) )
                      
 solar.st = resample(solar.st, bin_exclusion_zones.rs, method="bilinear")
-# pdf("P:/is-wel/indus/message_indus/input/LF/solar_lf_no_exclusion.pdf")
+# pdf("C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/LF/solar_lf_no_exclusion.pdf")
 # plot(solar.st)      
 # dev.off()
 solar.st = solar.st * (bin_exclusion_zones.rs )
-# pdf("P:/is-wel/indus/message_indus/input/LF/solar_lf_after_exclusion.pdf")
+# pdf("C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/LF/solar_lf_after_exclusion.pdf")
 # plot(solar.st)   
 # dev.off()
 
-wind.df <- read.csv("P:/is-wel/indus/message_indus/input/LF/wind_monthly_LF.csv")
+wind.df <- read.csv("C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/LF/wind_monthly_LF.csv")
 wind.df <- wind.df %>% select(-id) %>% 
   spread(month,value)
 wind.spdf <- wind.df  
@@ -63,11 +63,11 @@ plot(wind.spdf)
 wind.st = do.call(stack, lapply( months, function(mm){ return( raster( wind.spdf[,mm] ) ) } ) )
 
 wind.st = resample(wind.st, bin_exclusion_zones.rs, method="bilinear")
-pdf("P:/is-wel/indus/message_indus/input/LF/wind_lf_no_exclusion.pdf")
+pdf("C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/LF/wind_lf_no_exclusion.pdf")
 plot(wind.st)
 dev.off()
 wind.st = wind.st * (bin_exclusion_zones.rs )
-pdf("P:/is-wel/indus/message_indus/input/LF/wind_lf_after_exclusion.pdf")
+pdf("C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/LF/wind_lf_after_exclusion.pdf")
 plot(wind.st)
 dev.off()
 
@@ -91,9 +91,9 @@ return(out.spdf)
 }
 
 PIDs <- over(out.spdf,mapping.spdf[,"PID"])[1]
-solar_out.spdf <- make_spatial_with_PID(solar.st,indus_basin.spdf)
+solar_out.spdf <- make_spatial_with_PID(solar.st,Sufichay_Subbasin_bcu.spdf)
 b = solar_out.spdf@data
-max_solar.spdf <- make_spatial_with_PID(max_solar_potential,indus_basin.spdf)
+max_solar.spdf <- make_spatial_with_PID(max_solar_potential,Sufichay_Subbasin_bcu.spdf)
 #@####### check from here!!
 solar_out.df <- bind_cols(as.data.frame(coordinates(solar_out.spdf),row.names = NULL), solar_out.spdf@data) %>% 
   filter(!is.na(PID)) %>%
@@ -179,16 +179,16 @@ max_wind.df <- bind_cols(as.data.frame(coordinates(max_wind.spdf),row.names = NU
 ## save csv
 max_cap_sw <- bind_rows(max_wind.df,max_solar.df)
 names(max_cap_sw) = c("node",'tec',"value")
-write.csv(max_cap_sw, file = "P:/is-wel/indus/message_indus/input/LF/max_capacity_sw.csv",
+write.csv(max_cap_sw, file = "C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/LF/max_capacity_sw.csv",
           row.names = F) 
 
-year<- c(1990	,2000	,2010	,2015	,2020	,2030	,2040	,2050	,2060	)
+year<- c(1990	,2000	,2010	,2016	,2020	,2030	,2040	,2050	,2060	)
 vintage <- year
 
 year_nd_vint = expand.grid(year,vintage)
 
 load_factor_sw <- bind_rows(wind_agg.df,solar_agg.df)
 names(load_factor_sw) = c("node","tec","time","value")
-write.csv(load_factor_sw, file = "P:/is-wel/indus/message_indus/input/LF/load_factor_sw.csv",
+write.csv(load_factor_sw, file = "C:/Users/bararzadeh/Documents/Github/Sufichay_ix/input/LF/load_factor_sw.csv",
           row.names = F) 
 
