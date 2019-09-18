@@ -230,7 +230,7 @@ Heater =  list ( nodes = nds,
 # geothermal with closed loop cooling
 vtgs = year_all
 nds = bcus
-geothermal_cl =  list( nodes = nds,
+geothermal_cl =  list ( nodes = nds,
                         years = year_all,
                         times = time,
                         vintages = vtgs,	
@@ -240,10 +240,10 @@ geothermal_cl =  list( nodes = nds,
                         
                         input = bind_rows(  left_join(  expand.grid( 	node = nds,
                                                                       vintage = vtgs,
-                                                                      mode = 1, 
-                                                                      commodity = 'freshwater', 
-                                                                      level = 'energy_secondary',
-                                                                      value =  2.4e-10 ) ,
+                                             mode = 1, 
+                                                    commodity = 'freshwater',
+                                             level='energy_secondary'
+                                                        value =  2.4e-10 ) ,
                                                         vtg_year_time ) %>% mutate( node_in = node, time_in = time ) %>% 
                                               dplyr::select( node,  vintage, year_all, mode, node_in, commodity, level, time, time_in, value )
                                             ),
@@ -274,7 +274,7 @@ geothermal_cl =  list( nodes = nds,
                         left_join(   expand.grid( 	node = nds,
                                                    vintage = vtgs,
                                                    mode = 2, 
-                                                   commodity = 'electricity', 
+                                                   commodity = 'heat', 
                                                    level = 'wastewater_rural_final',
                                                    value = 0.039 ) ,
                                      vtg_year_time ) %>% mutate( node_out = node, time_out = time ) %>% 
@@ -282,31 +282,15 @@ geothermal_cl =  list( nodes = nds,
                         
                         output = bind_rows( left_join(  expand.grid( 	node = nds,
                                                                       vintage = vtgs,
-                                                                      mode = 1, 
-                                                                      commodity = 'electricity', 
+                                                                     
+                                                                      commodity = 'heat', 
                                                                       level = 'rural_final',
                                                                       value = 1 ) ,
                                                         vtg_year_time ) %>% mutate( node_out = node, time_out = time ) %>% 
                                               dplyr::select( node,  vintage, year_all, mode, node_out, commodity, level, time, time_out, value ),
-                                            left_join(  expand.grid( 	node = nds,
-                                                                      vintage = vtgs,
-                                                                      mode = 2, 
-                                                                      commodity = 'electricity', 
-                                                                      level = 'rural_final',
-                                                                      value = 1 ) ,
-                                                        vtg_year_time ) %>% mutate( node_out = node, time_out = time ) %>% 
-                                              dplyr::select( node,  vintage, year_all, mode, node_out, commodity, level, time, time_out, value ),	
+
                                             
-                                                                left_join(  expand.grid( 	node = nds,
-                                                                      vintage = vtgs,
-                                                                      mode = 2, 
-                                                                      commodity = 'fertilizer', 
-                                                                      level = 'agriculture_final',
-                                                                      value = 0.00030 ) ,
-                                                        vtg_year_time ) %>% mutate( node_out = node, time_out = time ) %>% 
-                                              dplyr::select( node,  vintage, year_all, mode, node_out, commodity, level, time, time_out, value ),	
-                                            
-                                           
+
                                             
                                             left_join(   expand.grid( 	node = nds,
                                                                        vintage = vtgs,
