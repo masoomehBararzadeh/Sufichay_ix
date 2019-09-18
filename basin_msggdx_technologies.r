@@ -31,6 +31,7 @@ Heater =  list ( nodes = nds,
                         ),
                        output= left_join(   expand.grid( 	node = nds,
                                                    vintage = vtgs,
+                                                   mode = 1, 
                                                    commodity = 'Heat', 
                                                    level = 'rural_final',
                                                    value = 1 ) ,
@@ -117,8 +118,115 @@ Heater =  list ( nodes = nds,
                                               
                                               # data.frame(node,inv_tec,year)
                                               growth_new_capacity_up = expand.grid( 	node = nds, year_all = c(2030,2040,2050,2060), value = 0.12	)
-                        input = bind_rows(  left_join(  expand.grid( 	node = nds,
-                                                                      vintage = vtgs,
+                     #Heating system_Hermetic
+                                              vtgs = year_all
+                                              nds = bcus
+                                              Heater =  list ( nodes = nds,
+                                                               years = year_all,
+                                                               times = time,
+                                                               vintages = vtgs,	
+                                                               types = c('heat'),
+                                                               modes = c( 1),
+                                                               lifetime = lft,
+                                                               
+                                                               input = bind_rows(  left_join(  expand.grid( 	node = nds,
+                                                                                                             vintage = vtgs,
+                                                                                                             mode = 1, 
+                                                                                                             commodity = 'natural_gas',
+                                                                                                             level='secondary_energy',
+                                                                                                             value =  0.000111 ) ,
+                                                                                               vtg_year_time ) %>% mutate( node_in = node, time_in = time ) %>% 
+                                                                                     dplyr::select( node,  vintage, year_all, mode, node_in, commodity, level, time, time_in, value )
+                                                               ),
+                                                               left_join(   expand.grid( 	node = nds,
+                                                                                          vintage = vtgs,
+                                                                                          mode = 1, 
+                                                                                          commodity = 'Heat', 
+                                                                                          level = 'rural_final',
+                                                                                          value = 1 ) ,
+                                                                            vtg_year_time ) %>% mutate( node_out = node, time_out = time ) %>% 
+                                                                 dplyr::select( node,  vintage, year_all, mode, node_out, commodity, level, time, time_out, value ),
+                                                               
+                                                               
+                                                               
+                                                               # data.frame( node,vintage,year_all,mode,emission) 
+                                                               emission_factor = bind_rows( 	left_join( expand.grid( node = nds,
+                                                                                                                     vintage = vtgs,
+                                                                                                                     mode = 1, 
+                                                                                                                     emission = 'CO2', 
+                                                                                                                     value = round( 1.86e-6 , digits = 5 ) ) ,
+                                                                                                        vtg_year ) %>% dplyr::select( node,  vintage, year_all, mode, emission, value ),
+                                                                                             
+                                                                                             
+                                                                                             left_join( expand.grid( node = nds,
+                                                                                                                     vintage = vtgs,
+                                                                                                                     mode = 1, 
+                                                                                                                     emission = 'water_consumption', 
+                                                                                                                     value = 0 ) ,
+                                                                                                        vtg_year ) %>% dplyr::select( node,  vintage, year_all, mode, emission, value ),
+                                                                                             
+                                                                                             
+                                                                                             # data.frame(node,vintage,year_all,time)
+                                                                                             capacity_factor = left_join( 	expand.grid( 	node = nds,
+                                                                                                                                         vintage = vtgs,
+                                                                                                                                         value = 0.73) ,
+                                                                                                                           vtg_year_time ) %>% dplyr::select( node,  vintage, year_all, time, value ),
+                                                                                             
+                                                                                             # data.frame( vintages, value )
+                                                                                             construction_time = expand.grid( 	node = nds,
+                                                                                                                               vintage = vtgs,
+                                                                                                                               value = 1	),
+                                                                                             
+                                                                                             # data.frame( vintages, value )
+                                                                                             technical_lifetime = expand.grid( 	node = nds,
+                                                                                                                                vintage = vtgs,
+                                                                                                                                value = lft	),
+                                                                                             
+                                                                                             # data.frame( vintages, value )
+                                                                                             inv_cost = expand.grid( node = nds,
+                                                                                                                     vintage = vtgs,
+                                                                                                                     
+                                                                                                                     time = time,
+                                                                                                                     value = 3.6e-5	),
+                                                                                             
+                                                                                             vtg_year_time ) %>% 
+                                                                 dplyr::select( node, vintage, year_all, mode, time, value ),
+                                                               
+                                                               # data.frame( node, vintages, year_all, value )
+                                                               fix_cost = left_join( 	expand.grid( 	node = nds,
+                                                                                                    vintage = vtgs,
+                                                                                                    value = 0	),
+                                                                                      vtg_year ) %>% dplyr::select( node, vintage, year_all, value ),
+                                                               
+                                                               # data.frame( node, vintage, year_all, mode, time, value ) 
+                                                               time = time,
+                                                               # data.frame( node, vintage, year_all, mode, time, value ) 
+                                                               var_cost = bind_rows( 	
+                                                                 left_join( expand.grid( node = nds,
+                                                                                         vintage = vtgs,
+                                                                                         mode = 1 ),
+                                                                            vtg_year_time ), 
+                                                                 fossil_fuel_cost_var %>% 
+                                                                   filter(commodity == "gas") %>% 
+                                                                   dplyr::select( year_all, value ) %>% 
+                                                                   mutate( value = 0.0075 )
+                                                               ) %>% dplyr::select( node,  vintage, year_all, mode, time, value ) 
+                                                               
+                                              )	
+                                              # data.frame(node,vintage,year_all,value)
+                                              min_utilization_factor = left_join( expand.grid( 	node = nds,
+                                                                                                vintage = vtgs,
+                                                                                                value = 0.7	),
+                                                                                  vtg_year ) %>% dplyr::select( node, vintage, year_all, value )
+                                              
+                                              # data.frame(node,year_all,value)
+                                              historical_new_capacity = hist_new_cap.df[hist_new_cap.df$tec == "Heating system_Hermetic",]
+                                              
+                                              # bound_new_capacity_up(node,inv_tec,year)
+                                              bound_new_capacity_up = expand.grid( 	node = nds, year_all = c(2020,2030), value = 0.12	)
+                                              
+                                              # data.frame(node,inv_tec,year)
+                                              growth_new_capacity_up = expand.grid( 	node = nds, year_all = c(2030,2040,2050,2060), value = 0.12	)
 # geothermal with closed loop cooling
 vtgs = year_all
 nds = bcus
